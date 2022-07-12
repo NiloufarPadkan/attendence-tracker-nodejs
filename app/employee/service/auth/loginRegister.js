@@ -3,7 +3,8 @@ const tokenGenerator = require("../../../../utils/jwtUtil").genToken;
 const validator = require("validator");
 const persianize = require("persianize");
 
-function isActiveEmployee(Employee) {
+function isActiveEmployee(employee) {
+  console.log(employee.activityStatus);
   if (Employee.activityStatus === false) {
     return false;
   } else {
@@ -23,11 +24,11 @@ exports.sendOtp = async (req) => {
           roleId: 3,
         },
       });
-      if(!employee){
-        employee=new Employee({
-            email: req.body.input,
-            roleId: 3, 
-        })
+      if (!employee) {
+        employee = new Employee({
+          email: req.body.input,
+          roleId: 3,
+        });
       }
     } else if (persianize.validator().mobile(input)) {
       //send random code
@@ -37,11 +38,11 @@ exports.sendOtp = async (req) => {
           roleId: 3,
         },
       });
-      if(!employee){
-        employee=new Employee({
-            email: req.body.input,
-            roleId: 3, 
-        })
+      if (!employee) {
+        employee = new Employee({
+          phone: req.body.input,
+          roleId: 3,
+        });
       }
     }
 
@@ -50,8 +51,7 @@ exports.sendOtp = async (req) => {
     }
 
     employee.otp = otp;
-    console.log(employee)
-    await employee.save()
+    await employee.save();
     return "otpSent";
   } catch (e) {
     throw new Error(e);
@@ -85,9 +85,8 @@ exports.login_signup = async (req) => {
       return "yourAcoountIsNotActive";
     }
     if (!employee.otp == req.body.code) {
-        return "invalidCode"
+      return "invalidCode";
     }
-
 
     const accessToken = tokenGenerator(employee.id, employee.roleId);
 

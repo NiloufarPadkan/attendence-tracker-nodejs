@@ -3,7 +3,7 @@ const Sequelize = require("sequelize");
 const sequelize = require("../config/database/sequelize");
 const Role = require("./Role");
 
-const Employee = sequelize.define("employee", {
+const Employer = sequelize.define("employer", {
   id: {
     type: Sequelize.INTEGER,
     autoIncrement: true,
@@ -42,5 +42,5 @@ const Employee = sequelize.define("employee", {
   },
 });
 
-Employee.belongsTo(Role);
-module.exports = Employee;
+Employer.belongsTo(Role);
+module.exports = Employer;

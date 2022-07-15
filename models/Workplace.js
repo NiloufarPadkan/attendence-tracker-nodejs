@@ -1,37 +1,33 @@
 const Sequelize = require("sequelize");
 
 const sequelize = require("../config/database/sequelize");
-const Role = require("./Role");
+const Employee = require("./Employee");
+const Employer = require("./Employer");
 
-const Employee = sequelize.define("employee", {
+const Workplace = sequelize.define("workplace", {
   id: {
     type: Sequelize.INTEGER,
     autoIncrement: true,
     allowNull: false,
     primaryKey: true,
   },
-  email: {
+  name: {
     type: Sequelize.STRING,
     trim: true,
     unique: true,
   },
-  fname: {
+  QRcode: {
+    type: Sequelize.STRING,
+    get: function () {
+      if (this.getDataValue("photo"))
+        return process.env.IMAGE_PREFIX + this.getDataValue("photo");
+      else return this.getDataValue("photo");
+    },
+  },
+  hash: {
     type: Sequelize.STRING,
     trim: true,
   },
-  lname: {
-    type: Sequelize.STRING,
-    trim: true,
-  },
-  phone: {
-    type: Sequelize.STRING,
-    trim: true,
-    unique: true,
-  },
-  otp: {
-    type: Sequelize.STRING,
-  },
-
   activityStatus: {
     type: Sequelize.BOOLEAN,
     defaultValue: false,
@@ -42,5 +38,6 @@ const Employee = sequelize.define("employee", {
   },
 });
 
-Employee.belongsTo(Role);
-module.exports = Employee;
+Employee.belongsTo(Workplace);
+Employer.hasOne(Workplace);
+module.exports = Workplace;

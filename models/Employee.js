@@ -34,7 +34,7 @@ const Employee = sequelize.define("employee", {
 
   activityStatus: {
     type: Sequelize.BOOLEAN,
-    defaultValue: false,
+    defaultValue: true,
     set: function (val) {
       if (val === 1) return this.setDataValue("activityStatus", true);
       else return this.setDataValue("activityStatus", false);

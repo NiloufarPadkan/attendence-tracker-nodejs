@@ -3,6 +3,7 @@ const QRcodeGenerator =
   require("../../../../utils/QRcodeGenerator").QRcodeGenerator;
 
 var randomstring = require("randomstring");
+// TO DO :hash the qr code data
 
 exports.generateNewQRCode = async (req) => {
   try {
@@ -20,6 +21,7 @@ exports.generateNewQRCode = async (req) => {
       length: 50,
     });
     let QRCodePath = QRcodeGenerator(text, workplaceId);
+    // use the return value here instead of like a regular (non-evented) return value
     workplace.QRcode = QRCodePath;
     workplace.hash = text;
     await workplace.save();

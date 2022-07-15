@@ -18,11 +18,6 @@ const Workplace = sequelize.define("workplace", {
   },
   QRcode: {
     type: Sequelize.STRING,
-    get: function () {
-      if (this.getDataValue("photo"))
-        return process.env.IMAGE_PREFIX + this.getDataValue("photo");
-      else return this.getDataValue("photo");
-    },
   },
   hash: {
     type: Sequelize.STRING,

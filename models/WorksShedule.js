@@ -1,17 +1,21 @@
 const Sequelize = require("sequelize");
+
 const sequelize = require("../config/database/sequelize");
-const Role = sequelize.define("role", {
+const Employee = require("./Employee");
+const Workplace = require("./Workplace");
+
+const WorksShedule = sequelize.define("worksShedule", {
   id: {
     type: Sequelize.INTEGER,
     autoIncrement: true,
     allowNull: false,
     primaryKey: true,
   },
-  role: {
-    type: Sequelize.STRING,
-    allowNull: false,
-    trim: true,
-    unique: true,
+  startTime: {
+    type: Sequelize.TIME,
+  },
+  endTime: {
+    type: Sequelize.TIME,
   },
   createdAt: {
     type: Sequelize.DATE,
@@ -23,4 +27,6 @@ const Role = sequelize.define("role", {
   },
 });
 
-module.exports = Role;
+Employee.belongsTo(WorksShedule);
+WorksShedule.belongsTo(Workplace);
+module.exports = WorksShedule;

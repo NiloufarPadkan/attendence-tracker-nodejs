@@ -3,7 +3,9 @@ const dotenv = require("dotenv");
 const sequelize = require("./config/database/sequelize");
 const employeeAuthRouter = require("./app/employee/routes/auth/loginRegisterRouter");
 const employeeProfileRouter = require("./app/employee/routes/profile/profileRouter");
-
+const EmployerQRCodeRouter = require("./app/employer/routes/QRCode/QRcodeRouter");
+const Employer = require("./models/Employer");
+const Workplace = require("./models/Workplace");
 dotenv.config();
 const app = express();
 app.use(express.json());
@@ -22,6 +24,7 @@ app.use((req, res, next) => {
 
 app.use("/api", employeeAuthRouter);
 app.use("/api", employeeProfileRouter);
+app.use("/api", EmployerQRCodeRouter);
 
 sequelize.sync({});
 

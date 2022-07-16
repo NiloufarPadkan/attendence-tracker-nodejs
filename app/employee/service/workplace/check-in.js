@@ -55,3 +55,35 @@ exports.checkIn = async (req) => {
   await newCheckIn.save();
   return newCheckIn;
 };
+// check if employee checked in or not
+exports.checkInStatus = async (req) => {
+  const TODAY_START = moment(new Date(), "YYYY-MM-DD").startOf("day");
+  const TODAY_END = moment(new Date(), "YYYY-MM-DD").endOf("day");
+
+  let employeeId = req.Employee.id;
+
+  let employee = await Employee.findOne({
+    where: {
+      id: employeeId,
+    },
+    include: [
+      {
+        model: WorkPlace,
+      },
+      {
+        model: WorkSchedule,
+      },
+    ],
+  });
+
+  let activeWorkSchedule = await EmployeeSchedule.findOne({
+    where: {
+      createdAt: {
+        [Op.gt]: TODAY_START,
+        [Op.lt]: TODAY_END,
+      },
+      checkOutTime: null,
+    },
+  });
+  return activeWorkSchedule;
+};

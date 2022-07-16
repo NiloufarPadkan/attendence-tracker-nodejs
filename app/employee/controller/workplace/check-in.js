@@ -20,3 +20,15 @@ exports.checkIn = async (req, res, next) => {
     next(e);
   }
 };
+exports.checkInStatus = async (req, res, next) => {
+  try {
+    const checkInStatusResponse = await checkInService.checkInStatus(req);
+    let response = new Response(200, "success", checkInStatusResponse);
+    return res.status(200).send(response.handler());
+  } catch (e) {
+    if (e.statusCode) {
+      err.statusCode = 500;
+    }
+    next(e);
+  }
+};

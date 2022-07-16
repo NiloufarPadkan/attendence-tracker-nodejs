@@ -12,7 +12,7 @@ module.exports = {
         otp: "2564",
         roleId: 3,
         workplaceId: 1,
-        worksSheduleId: 1,
+        workSheduleId: 1,
         activityStatus: true,
         createdAt: new Date(),
         updatedAt: new Date(),

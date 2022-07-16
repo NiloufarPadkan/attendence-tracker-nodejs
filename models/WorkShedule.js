@@ -4,7 +4,7 @@ const sequelize = require("../config/database/sequelize");
 const Employee = require("./Employee");
 const Workplace = require("./Workplace");
 
-const WorksShedule = sequelize.define("worksShedule", {
+const WorkShedule = sequelize.define("workShedule", {
   id: {
     type: Sequelize.INTEGER,
     autoIncrement: true,
@@ -27,6 +27,6 @@ const WorksShedule = sequelize.define("worksShedule", {
   },
 });
 
-Employee.belongsTo(WorksShedule);
-WorksShedule.belongsTo(Workplace);
-module.exports = WorksShedule;
+Employee.belongsTo(WorkShedule);
+WorkShedule.belongsTo(Workplace);
+module.exports = WorkShedule;

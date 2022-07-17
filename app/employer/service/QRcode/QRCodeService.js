@@ -2,6 +2,8 @@ const Workplace = require("../../../../models/Workplace");
 const QRcodeGenerator =
   require("../../../../utils/QRcodeGenerator").QRcodeGenerator;
 
+const { encrypt } = require("../../../../utils/cryproUtil");
+
 var randomstring = require("randomstring");
 // TO DO :hash the qr code data
 
@@ -20,10 +22,11 @@ exports.generateNewQRCode = async (req) => {
     let text = randomstring.generate({
       length: 50,
     });
+    const hash = encrypt(text);
+    console.log(text);
     let QRCodePath = QRcodeGenerator(text, workplaceId);
-    // use the return value here instead of like a regular (non-evented) return value
     workplace.QRcode = QRCodePath;
-    workplace.hash = text;
+    workplace.hash = { content: hash.content, iv: hash.iv };
     await workplace.save();
     return workplace;
   } catch (error) {

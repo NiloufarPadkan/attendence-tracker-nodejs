@@ -4,7 +4,6 @@ const validator = require("validator");
 const persianize = require("persianize");
 
 function isActiveEmployee(employee) {
-  console.log(employee.activityStatus);
   if (Employee.activityStatus === false) {
     return false;
   } else {

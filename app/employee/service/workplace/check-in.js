@@ -5,6 +5,7 @@ const EmployeeSchedule = require("../../../../models/EmployeeSchedule");
 const Sequelize = require("sequelize");
 const Op = Sequelize.Op;
 const moment = require("moment");
+const { decrypt } = require("../../../../utils/cryproUtil");
 
 exports.checkIn = async (req) => {
   const TODAY_START = moment(new Date(), "YYYY-MM-DD").startOf("day");
@@ -41,7 +42,8 @@ exports.checkIn = async (req) => {
   if (activeWorkSchedule) {
     return "AlreadyCheckedIn";
   }
-  if (employee.workplace.hash !== code) {
+
+  if (decrypt(employee.workplace.hash) !== code) {
     return "invalidQRcode";
   }
 

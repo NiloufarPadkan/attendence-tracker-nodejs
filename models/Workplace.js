@@ -20,9 +20,19 @@ const Workplace = sequelize.define("workplace", {
     type: Sequelize.STRING,
   },
   hash: {
-    type: Sequelize.STRING,
-    trim: true,
+    type: Sequelize.TEXT,
+    get: function () {
+      if (this.getDataValue("hash"))
+        return JSON.parse(this.getDataValue("hash"));
+      else {
+        return "";
+      }
+    },
+    set: function (value) {
+      this.setDataValue("hash", JSON.stringify(value));
+    },
   },
+
   activityStatus: {
     type: Sequelize.BOOLEAN,
     defaultValue: true,

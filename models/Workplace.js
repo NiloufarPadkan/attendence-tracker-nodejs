@@ -16,9 +16,7 @@ const Workplace = sequelize.define("workplace", {
     trim: true,
     unique: true,
   },
-  QRcode: {
-    type: Sequelize.STRING,
-  },
+
   hash: {
     type: Sequelize.TEXT,
     get: function () {

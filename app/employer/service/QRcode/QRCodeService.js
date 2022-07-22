@@ -5,7 +5,6 @@ const QRcodeGenerator =
 const { encrypt } = require("../../../../utils/cryproUtil");
 
 var randomstring = require("randomstring");
-// TO DO :hash the qr code data
 
 exports.generateNewQRCode = async (req) => {
   try {
@@ -23,12 +22,10 @@ exports.generateNewQRCode = async (req) => {
       length: 50,
     });
     const hash = encrypt(text);
-    console.log(text);
-    let QRCodePath = QRcodeGenerator(text, workplaceId);
-    workplace.QRcode = QRCodePath;
+    // let QRCodePath = QRcodeGenerator(text, workplaceId);
     workplace.hash = { content: hash.content, iv: hash.iv };
     await workplace.save();
-    return workplace;
+    return text;
   } catch (error) {
     throw new Error(error);
   }

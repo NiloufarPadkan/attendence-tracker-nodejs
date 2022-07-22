@@ -1,8 +1,8 @@
-# attendence-tracker-nodejs
+# attendance-tracker-nodejs
 
 ## About This Project
 
-This REST_API attendence-tracker-nodejs helps you simplify the task of keeping attendance of your employees!:man_office_worker: :woman_office_worker:
+This REST_API attendance-tracker-nodejs helps you simplify the task of keeping attendance of your employees!:man_office_worker: :woman_office_worker:
 
 ## RUN
 

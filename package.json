@@ -1,5 +1,5 @@
 {
-  "name": "attendence-tracker-nodejs",
+  "name": "attendance-tracker-nodejs",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -8,14 +8,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/NiloufarPadkan/attendence-tracker-nodejs.git"
+    "url": "git+https://github.com/NiloufarPadkan/attendance-tracker-nodejs.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/NiloufarPadkan/attendence-tracker-nodejs/issues"
+    "url": "https://github.com/NiloufarPadkan/attendance-tracker-nodejs/issues"
   },
-  "homepage": "https://github.com/NiloufarPadkan/attendence-tracker-nodejs#readme",
+  "homepage": "https://github.com/NiloufarPadkan/attendance-tracker-nodejs#readme",
   "dependencies": {
     "dotenv": "^16.0.1",
     "express": "^4.18.1",

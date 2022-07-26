@@ -1,7 +1,7 @@
 const WorkSchedule = require("../../../../models/WorkShedule");
 const WorkPlace = require("../../../../models/Workplace");
 const Employee = require("../../../../models/Employee");
-const EmployeeSchedule = require("../../../../models/EmployeeSchedule");
+const AttendanceRecords = require("../../../../models/AttendanceRecords");
 const Sequelize = require("sequelize");
 const Op = Sequelize.Op;
 const moment = require("moment");
@@ -29,7 +29,7 @@ exports.checkIn = async (req) => {
     ],
   });
 
-  let activeWorkSchedule = await EmployeeSchedule.findOne({
+  let activeWorkSchedule = await AttendanceRecords.findOne({
     where: {
       createdAt: {
         [Op.gt]: TODAY_START,
@@ -47,7 +47,7 @@ exports.checkIn = async (req) => {
     return "invalidQRcode";
   }
 
-  let newCheckIn = new EmployeeSchedule({
+  let newCheckIn = new AttendanceRecords({
     employeeId: employeeId,
     workplaceId: employee.workplaceId,
     startTime: employee.workShedule.startTime,
@@ -64,22 +64,10 @@ exports.checkInStatus = async (req) => {
 
   let employeeId = req.Employee.id;
 
-  let employee = await Employee.findOne({
+  let activeWorkSchedule = await AttendanceRecords.findOne({
     where: {
-      id: employeeId,
-    },
-    include: [
-      {
-        model: WorkPlace,
-      },
-      {
-        model: WorkSchedule,
-      },
-    ],
-  });
+      employeeId: employeeId,
 
-  let activeWorkSchedule = await EmployeeSchedule.findOne({
-    where: {
       createdAt: {
         [Op.gt]: TODAY_START,
         [Op.lt]: TODAY_END,

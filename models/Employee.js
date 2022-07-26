@@ -39,13 +39,15 @@ const Employee = sequelize.define("employee", {
       if (val === 1) return this.setDataValue("activityStatus", true);
       else return this.setDataValue("activityStatus", false);
     },
-    createdAt: {
-      type: Sequelize.DATE,
-      defaultValue: Sequelize.DATE,
+  },
+  workdays: {
+    type: Sequelize.TEXT,
+    defaultValue: "[]",
+    get: function () {
+      return Object.values(JSON.parse(this.getDataValue("workdays")));
     },
-    updatedAt: {
-      type: Sequelize.DATE,
-      defaultValue: Sequelize.DATE,
+    set: function (val) {
+      return this.setDataValue("workdays", JSON.stringify(val));
     },
   },
 });

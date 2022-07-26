@@ -5,11 +5,15 @@ const employeeAuthRouter = require("./app/employee/routes/auth/loginRegisterRout
 const employeeProfileRouter = require("./app/employee/routes/profile/profileRouter");
 const employeeCheckInRouter = require("./app/employee/routes/workplace/check-inRouter");
 const employeeCheckOutRouter = require("./app/employee/routes/workplace/check-outRouter");
+const employeeAttendanceHistoryRouter = require("./app/employee/routes/attendance/attendanceRouter");
 const EmployerQRCodeRouter = require("./app/employer/routes/QRCode/QRcodeRouter");
 const Employer = require("./models/Employer");
 const Workplace = require("./models/Workplace");
 const WorksShedule = require("./models/WorkShedule");
 const Roles = require("./models/Role");
+
+const moment = require("moment");
+
 dotenv.config();
 const app = express();
 app.use(express.json());
@@ -30,6 +34,7 @@ app.use("/api", employeeAuthRouter);
 app.use("/api", employeeProfileRouter);
 app.use("/api", employeeCheckInRouter);
 app.use("/api", employeeCheckOutRouter);
+app.use("/api", employeeAttendanceHistoryRouter);
 
 app.use("/api", EmployerQRCodeRouter);
 

@@ -1,8 +1,9 @@
 const WorkSchedule = require("../../../../models/WorkShedule");
 const WorkPlace = require("../../../../models/Workplace");
 const Employee = require("../../../../models/Employee");
-const EmployeeSchedule = require("../../../../models/EmployeeSchedule");
+const AttendanceRecords = require("../../../../models/AttendanceRecords");
 const Sequelize = require("sequelize");
+const sequelize = require("../../../../config/database/sequelize");
 const Op = Sequelize.Op;
 const moment = require("moment");
 const { decrypt } = require("../../../../utils/cryproUtil");
@@ -28,7 +29,7 @@ exports.checkOut = async (req) => {
     ],
   });
 
-  let activeWorkSchedule = await EmployeeSchedule.findOne({
+  let activeWorkSchedule = await AttendanceRecords.findOne({
     where: {
       createdAt: {
         [Op.gt]: TODAY_START,
@@ -47,5 +48,6 @@ exports.checkOut = async (req) => {
   (activeWorkSchedule.checkOutTime =
     NOW.hour() + ":" + NOW.minutes() + ":" + NOW.seconds()),
     await activeWorkSchedule.save();
+
   return activeWorkSchedule;
 };

@@ -13,6 +13,13 @@ module.exports = {
         roleId: 3,
         workplaceId: 1,
         workSheduleId: 1,
+        workdays: JSON.stringify([
+          "Sunday",
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Saturday",
+        ]),
         activityStatus: true,
         createdAt: new Date(),
         updatedAt: new Date(),

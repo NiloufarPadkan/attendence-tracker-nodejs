@@ -10,5 +10,10 @@ router.get(
   verifyToken,
   attendanceHistoryController.getDailyHistory
 );
+router.get(
+  "/employee/getAttendanceBydate",
+  verifyToken,
+  attendanceHistoryController.getHistoryByDate
+);
 
 module.exports = router;

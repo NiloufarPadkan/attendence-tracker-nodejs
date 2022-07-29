@@ -17,6 +17,9 @@ const WorkShedule = sequelize.define("workShedule", {
   endTime: {
     type: Sequelize.TIME,
   },
+  title: {
+    type: Sequelize.STRING,
+  },
   createdAt: {
     type: Sequelize.DATE,
     defaultValue: Sequelize.DATE,

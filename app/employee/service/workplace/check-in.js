@@ -46,12 +46,14 @@ exports.checkIn = async (req) => {
   if (decrypt(employee.workplace.hash) !== code) {
     return "invalidQRcode";
   }
+  // console.log(moment(new Date()).format("YYYY-MM-DD HH:mm:ss"));
 
   let newCheckIn = new AttendanceRecords({
     employeeId: employeeId,
     workplaceId: employee.workplaceId,
     startTime: employee.workShedule.startTime,
     endTime: employee.workShedule.endTime,
+    createdAt: moment(new Date()).format("YYYY-MM-DD HH:mm:ss"),
     checkInTime: NOW.hour() + ":" + NOW.minutes() + ":" + NOW.seconds(),
   });
   await newCheckIn.save();
@@ -61,13 +63,11 @@ exports.checkIn = async (req) => {
 exports.checkInStatus = async (req) => {
   const TODAY_START = moment(new Date(), "YYYY-MM-DD").startOf("day");
   const TODAY_END = moment(new Date(), "YYYY-MM-DD").endOf("day");
-
   let employeeId = req.Employee.id;
 
   let activeWorkSchedule = await AttendanceRecords.findOne({
     where: {
       employeeId: employeeId,
-
       createdAt: {
         [Op.gt]: TODAY_START,
         [Op.lt]: TODAY_END,

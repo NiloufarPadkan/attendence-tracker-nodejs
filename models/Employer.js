@@ -40,14 +40,6 @@ const Employer = sequelize.define("employer", {
       else return this.setDataValue("activityStatus", false);
     },
   },
-  createdAt: {
-    type: Sequelize.DATE,
-    defaultValue: Sequelize.DATE,
-  },
-  updatedAt: {
-    type: Sequelize.DATE,
-    defaultValue: Sequelize.DATE,
-  },
 });
 
 Employer.belongsTo(Role);

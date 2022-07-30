@@ -1,56 +1,44 @@
-const Employee = require("../../../../models/Employee");
+const Employer = require("../../../../models/Employer");
 const tokenGenerator = require("../../../../utils/jwtUtil").genToken;
 const validator = require("validator");
 const persianize = require("persianize");
-
-function isActiveEmployee(employee) {
-  if (Employee.activityStatus === false) {
-    return false;
-  } else {
-    return true;
-  }
-}
 
 exports.sendOtp = async (req) => {
   let otp = 2564;
   try {
     let input = req.body.input;
-    let employee;
+    let employer;
     if (validator.isEmail(input)) {
-      employee = await Employee.findOne({
+      employer = await Employer.findOne({
         where: {
           email: req.body.input,
-          roleId: 3,
+          roleId: 2,
         },
       });
-      if (!employee) {
-        employee = new Employee({
+      if (!employer) {
+        employer = new Employer({
           email: req.body.input,
-          roleId: 3,
+          roleId: 2,
         });
       }
     } else if (persianize.validator().mobile(input)) {
       //send random code
-      employee = await Employee.findOne({
+      employer = await Employer.findOne({
         where: {
           phone: req.body.input,
-          roleId: 3,
+          roleId: 2,
         },
       });
-      if (!employee) {
-        employee = new Employee({
+      if (!employer) {
+        employer = new Employer({
           phone: req.body.input,
           roleId: 3,
         });
       }
     }
 
-    if (!isActiveEmployee(employee)) {
-      return "yourAcoountIsNotActive";
-    }
-
-    employee.otp = otp;
-    await employee.save();
+    employer.otp = otp;
+    await employer.save();
     return "otpSent";
   } catch (e) {
     throw new Error(e);
@@ -61,35 +49,32 @@ exports.login_signup = async (req) => {
   let code = 2564;
   try {
     let input = req.body.input;
-    let employee;
+    let employer;
     if (validator.isEmail(input)) {
-      employee = await Employee.findOne({
+      employer = await Employer.findOne({
         where: {
           email: req.body.input,
-          roleId: 3,
+          roleId: 2,
         },
         raw: true,
       });
     } else if (persianize.validator().mobile(input)) {
-      employee = await Employee.findOne({
+      employer = await Employer.findOne({
         where: {
           phone: req.body.input,
-          roleId: 3,
+          roleId: 2,
         },
         raw: true,
       });
     }
 
-    if (!isActiveEmployee(employee)) {
-      return "yourAcoountIsNotActive";
-    }
-    if (!employee.otp == req.body.code) {
+    if (!employer.otp == req.body.code) {
       return "invalidCode";
     }
 
-    const accessToken = tokenGenerator(employee.id, employee.roleId);
+    const accessToken = tokenGenerator(employer.id, employer.roleId);
 
-    req.Employee = employee;
+    req.Employer = employer;
 
     return accessToken;
   } catch (e) {

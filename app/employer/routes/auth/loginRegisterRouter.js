@@ -9,12 +9,12 @@ const {
 // } = require('../../../../middleware/verification/customerLoginVerify');
 
 router.post(
-  "/employee/login-register",
+  "/employer/login-register",
   loginRegisterValidation,
   loginRegisterController.login_register
 );
 router.post(
-  "/employee/sendOTP",
+  "/employer/sendOTP",
   loginRegisterValidation,
   loginRegisterController.sendOTP
 );

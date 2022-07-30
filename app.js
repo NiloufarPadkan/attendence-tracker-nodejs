@@ -7,6 +7,7 @@ const employeeCheckInRouter = require("./app/employee/routes/workplace/check-inR
 const employeeCheckOutRouter = require("./app/employee/routes/workplace/check-outRouter");
 const employeeAttendanceHistoryRouter = require("./app/employee/routes/attendance/attendanceRouter");
 const EmployerQRCodeRouter = require("./app/employer/routes/QRCode/QRcodeRouter");
+const EmployerAuthRouter = require("./app/employer/routes/auth/loginRegisterRouter");
 const Employer = require("./models/Employer");
 const Workplace = require("./models/Workplace");
 const WorksShedule = require("./models/WorkShedule");
@@ -37,6 +38,7 @@ app.use("/api", employeeCheckOutRouter);
 app.use("/api", employeeAttendanceHistoryRouter);
 
 app.use("/api", EmployerQRCodeRouter);
+app.use("/api", EmployerAuthRouter);
 
 sequelize.sync({});
 

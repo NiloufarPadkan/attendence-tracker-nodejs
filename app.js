@@ -2,7 +2,8 @@ const express = require("express");
 const dotenv = require("dotenv");
 const sequelize = require("./config/database/sequelize");
 const employeeAuthRouter = require("./app/employee/routes/auth/loginRegisterRouter");
-const employeeProfileRouter = require("./app/employee/routes/profile/profileRouter");
+const employeeProfileRouter = require("./app/employee/routes/employee/profileRouter");
+const employeeScheduleRouter = require("./app/employee/routes/employee/workScheduleRouter");
 const employeeCheckInRouter = require("./app/employee/routes/workplace/check-inRouter");
 const employeeCheckOutRouter = require("./app/employee/routes/workplace/check-outRouter");
 const employeeAttendanceHistoryRouter = require("./app/employee/routes/attendance/attendanceRouter");
@@ -10,7 +11,7 @@ const EmployerQRCodeRouter = require("./app/employer/routes/QRCode/QRcodeRouter"
 const EmployerAuthRouter = require("./app/employer/routes/auth/loginRegisterRouter");
 const Employer = require("./models/Employer");
 const Workplace = require("./models/Workplace");
-const WorksShedule = require("./models/WorkShedule");
+const WorksSchedule = require("./models/WorkSchedule");
 const Roles = require("./models/Role");
 
 const moment = require("moment");
@@ -36,6 +37,7 @@ app.use("/api", employeeProfileRouter);
 app.use("/api", employeeCheckInRouter);
 app.use("/api", employeeCheckOutRouter);
 app.use("/api", employeeAttendanceHistoryRouter);
+app.use("/api", employeeScheduleRouter);
 
 app.use("/api", EmployerQRCodeRouter);
 app.use("/api", EmployerAuthRouter);

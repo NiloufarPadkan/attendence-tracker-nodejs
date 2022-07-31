@@ -12,7 +12,7 @@ module.exports = {
         otp: "2564",
         roleId: 3,
         workplaceId: 1,
-        workSheduleId: 1,
+        workScheduleId: 1,
         workdays: JSON.stringify([
           "Sunday",
           "Monday",

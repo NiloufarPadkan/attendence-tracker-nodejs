@@ -46,7 +46,12 @@ exports.dailyHistory = async (req) => {
   var currentDayName = moment(currentDate).format("dddd"); //current day of week
   const beginningOfDay = moment(currentDate, "YYYY-MM-DD").startOf("day");
   const endOfDay = moment(currentDate, "YYYY-MM-DD").endOf("day");
-  let record = { presence: "00:00:00", absence: "00:00:00", delay: "00:00:00" };
+  let record = {
+    presence: "00:00:00",
+    absence: "00:00:00",
+    delay: "00:00:00",
+    overTime: "00:00:00",
+  };
   let presenceDuration = 0;
   let scheduledPresenseduration = 0;
   let absenseDuration = 0;
@@ -98,10 +103,14 @@ exports.dailyHistory = async (req) => {
     absenseDuration = moment(workTime).diff(
       moment(presenseCalculation.scheduledPresenseduration)
     );
+    overTimeDuration = moment(presenseCalculation.presenceDuration).diff(
+      moment(presenseCalculation.scheduledPresenseduration)
+    );
     record.presence = moment
       .utc(presenseCalculation.presenceDuration)
       .format("HH:mm:ss");
     record.absence = moment.utc(absenseDuration).format("HH:mm:ss");
+    record.overTime = moment.utc(overTimeDuration).format("HH:mm:ss");
     return record;
   }
 };
@@ -112,11 +121,17 @@ exports.getHistoryByDate = async (req) => {
   const endDate = req.body.endDate;
   var currentDate = moment(new Date()); //current full Date
   var currentTime = moment(currentDate).format("HH:mm:ss"); //current full Date
-  let record = { presence: "00:00:00", absence: "00:00:00", delay: "00:00:00" };
+  let record = {
+    presence: "00:00:00",
+    absence: "00:00:00",
+    delay: "00:00:00",
+    overTime: "00:00:00",
+  };
   let presenceDuration = 0;
   let absenseDuration = 0;
   let delayDuration = 0;
   let scheduledPresenseduration = 0;
+  let overTimeDuration = 0;
 
   let employee = await Employee.findOne({
     where: {
@@ -182,11 +197,15 @@ exports.getHistoryByDate = async (req) => {
       absenseDuration += moment(workTime).diff(
         moment(scheduledPresenseduration)
       );
+      overTimeDuration += moment(presenceDuration).diff(
+        moment(scheduledPresenseduration)
+      );
     }
   }
   record.presence = moment.utc(presenceDuration).format("HH:mm:ss");
   record.absence = moment.utc(absenseDuration).format("HH:mm:ss");
   record.delay = moment.utc(delayDuration).format("HH:mm:ss");
+  record.overTime = moment.utc(overTimeDuration).format("HH:mm:ss");
 
   return record;
 };

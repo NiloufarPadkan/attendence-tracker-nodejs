@@ -1,4 +1,4 @@
-const WorkSchedule = require("../../../../models/WorkShedule");
+const WorkSchedule = require("../../../../models/WorkSchedule");
 const WorkPlace = require("../../../../models/Workplace");
 const Employee = require("../../../../models/Employee");
 const AttendanceRecords = require("../../../../models/AttendanceRecords");

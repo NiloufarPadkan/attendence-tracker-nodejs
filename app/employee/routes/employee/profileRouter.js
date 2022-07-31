@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const profileController = require("../../controller/profile/profile");
+const profileController = require("../../controller/employee/profile");
 
 const {
   verifyToken,

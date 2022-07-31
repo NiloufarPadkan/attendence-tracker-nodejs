@@ -1,4 +1,4 @@
-const WorkSchedule = require("../../../../models/WorkShedule");
+const WorkSchedule = require("../../../../models/WorkSchedule");
 const WorkPlace = require("../../../../models/Workplace");
 const Employee = require("../../../../models/Employee");
 const AttendanceRecords = require("../../../../models/AttendanceRecords");
@@ -51,8 +51,8 @@ exports.checkIn = async (req) => {
   let newCheckIn = new AttendanceRecords({
     employeeId: employeeId,
     workplaceId: employee.workplaceId,
-    startTime: employee.workShedule.startTime,
-    endTime: employee.workShedule.endTime,
+    startTime: employee.workSchedule.startTime,
+    endTime: employee.workSchedule.endTime,
     createdAt: moment(new Date()).format("YYYY-MM-DD HH:mm:ss"),
     checkInTime: NOW.hour() + ":" + NOW.minutes() + ":" + NOW.seconds(),
   });

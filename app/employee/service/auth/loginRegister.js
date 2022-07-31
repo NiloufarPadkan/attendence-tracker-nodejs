@@ -83,7 +83,7 @@ exports.login_signup = async (req) => {
     if (!isActiveEmployee(employee)) {
       return "yourAcoountIsNotActive";
     }
-    if (!employee.otp == req.body.code) {
+    if (employee.otp !== req.body.code) {
       return "invalidCode";
     }
 

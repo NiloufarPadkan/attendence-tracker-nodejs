@@ -7,6 +7,7 @@ const employeeScheduleRouter = require("./app/employee/routes/employee/workSched
 const employeeCheckInRouter = require("./app/employee/routes/workplace/check-inRouter");
 const employeeCheckOutRouter = require("./app/employee/routes/workplace/check-outRouter");
 const employeeAttendanceHistoryRouter = require("./app/employee/routes/attendance/attendanceRouter");
+const employeeLeaveRouter = require("./app/employee/routes/leave/leave");
 const EmployerQRCodeRouter = require("./app/employer/routes/QRCode/QRcodeRouter");
 const EmployerAuthRouter = require("./app/employer/routes/auth/loginRegisterRouter");
 const Employer = require("./models/Employer");
@@ -38,6 +39,7 @@ app.use("/api", employeeCheckInRouter);
 app.use("/api", employeeCheckOutRouter);
 app.use("/api", employeeAttendanceHistoryRouter);
 app.use("/api", employeeScheduleRouter);
+app.use("/api", employeeLeaveRouter);
 
 app.use("/api", EmployerQRCodeRouter);
 app.use("/api", EmployerAuthRouter);
@@ -46,5 +48,5 @@ sequelize.sync({});
 
 const port = process.env.PORT || 3000;
 app.listen(port, "0.0.0.0", () => {
-  console.log("server is running");
+  console.log("server is running on port " + port);
 });

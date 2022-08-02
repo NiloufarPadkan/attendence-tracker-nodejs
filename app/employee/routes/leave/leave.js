@@ -10,5 +10,6 @@ router.post(
   verifyToken,
   leaveRequestController.leaveRequest
 );
+router.get("/employee/leaves", verifyToken, leaveRequestController.indexLeaves);
 
 module.exports = router;

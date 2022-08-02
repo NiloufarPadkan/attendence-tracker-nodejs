@@ -38,6 +38,14 @@ const Leave = sequelize.define(
         else return this.setDataValue("status", false);
       },
     },
+    read_receipt: {
+      type: Sequelize.BOOLEAN,
+      defaultValue: false,
+      set: function (val) {
+        if (val === 1) return this.setDataValue("read_receipt", true);
+        else return this.setDataValue("read_receipt", false);
+      },
+    },
   },
   {
     timestamps: false,

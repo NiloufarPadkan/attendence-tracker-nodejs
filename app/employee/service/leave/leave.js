@@ -1,5 +1,4 @@
 const Leave = require("../../../../models/Leave");
-const WorkPlace = require("../../../../models/Workplace");
 const Employee = require("../../../../models/Employee");
 const WorkSchedule = require("../../../../models/WorkSchedule");
 const Sequelize = require("sequelize");
@@ -7,6 +6,7 @@ const Op = Sequelize.Op;
 const moment = require("moment");
 
 exports.leaveRequest = async (req) => {
+  //prevent mutiple request
   try {
     let description = req.body.description;
     let employee = req.Employee;
@@ -44,7 +44,6 @@ exports.leaveRequest = async (req) => {
       )
         return "notInSchedule";
     }
-    //to do check if it is workday or not
     let newLeaveRequest = new Leave({
       description,
       startDateTime,
@@ -55,6 +54,23 @@ exports.leaveRequest = async (req) => {
     });
     await newLeaveRequest.save();
     return newLeaveRequest;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+exports.indexLeaves = async (req) => {
+  try {
+    const limit = req.query.size ? req.query.size : 3;
+    const offset = req.query.page ? req.query.page * limit : 0;
+    let leaves = await Leave.findAll({
+      limit: parseInt(limit),
+      offset: parseInt(offset),
+
+      where: {
+        employeeId: req.Employee.id,
+      },
+    });
+    return leaves;
   } catch (error) {
     throw new Error(error);
   }

@@ -20,14 +20,6 @@ const WorkSchedule = sequelize.define("workSchedule", {
   title: {
     type: Sequelize.STRING,
   },
-  createdAt: {
-    type: Sequelize.DATE,
-    defaultValue: Sequelize.DATE,
-  },
-  updatedAt: {
-    type: Sequelize.DATE,
-    defaultValue: Sequelize.DATE,
-  },
 });
 
 Employee.belongsTo(WorkSchedule);

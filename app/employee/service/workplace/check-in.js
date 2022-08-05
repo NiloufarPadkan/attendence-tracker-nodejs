@@ -60,11 +60,6 @@ exports.checkIn = async (req) => {
       },
     ],
   });
-  let workDays = employee.workdays;
-
-  if (!workDays.includes(currentDayName)) {
-    return "notInSchedule";
-  }
 
   let activeWorkSchedule = await AttendanceRecords.findOne({
     where: {

@@ -19,6 +19,7 @@ const WorksSchedule = require("./models/WorkSchedule");
 const Roles = require("./models/Role");
 
 const moment = require("moment");
+const Employee = require("./models/Employee");
 
 dotenv.config();
 const app = express();
@@ -49,7 +50,12 @@ app.use("/api", EmployerAuthRouter);
 app.use("/api", EmployerLeaveRouter);
 app.use("/api", EmployerStaffRouter);
 app.use("/api", EmployerWorkPlaveRouter);
+app.use("/api", EmployerWorkPlaveRouter);
 
+app.get("/api/employees", async (req, res) => {
+  let employee = await Employee.findAll({});
+  res.send(employee);
+});
 sequelize.sync({});
 
 const port = process.env.PORT || 3000;

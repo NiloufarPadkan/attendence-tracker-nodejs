@@ -20,7 +20,7 @@ router.get(
   verifyToken,
   staffController.dailyHistory
 );
-router.get(
+router.post(
   "/employer/employee/:id/getAttendanceBydate",
   verifyToken,
   staffController.historyByDate
@@ -30,7 +30,7 @@ router.get(
   verifyToken,
   staffController.recentAttendance
 );
-router.get(
+router.post(
   "/employer/employee/:id/AttendanceByDate",
   verifyToken,
   staffController.recentAttendanceByDate

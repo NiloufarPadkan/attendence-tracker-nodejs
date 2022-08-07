@@ -10,7 +10,7 @@ router.get(
   verifyToken,
   attendanceHistoryController.getDailyHistory
 );
-router.get(
+router.post(
   "/employee/getAttendanceBydate",
   verifyToken,
   attendanceHistoryController.getHistoryByDate

@@ -36,7 +36,7 @@ router.get(
   verifyToken,
   workplaceController.recentAttendance
 );
-router.get(
+router.post(
   "/employer/workplace/:id/AttendanceByDate",
   verifyToken,
   workplaceController.recentAttendanceByDate

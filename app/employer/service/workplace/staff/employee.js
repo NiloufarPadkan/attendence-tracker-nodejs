@@ -8,10 +8,12 @@ const moment = require("moment");
 // show attandance records
 
 exports.showPresentEmployees = async (req) => {
+  const limit = req.query.size ? req.query.size : 10;
+  const offset = req.query.page ? req.query.page * limit : 0;
   const TODAY_START = moment(new Date(), "YYYY-MM-DD").startOf("day");
   const TODAY_END = moment(new Date(), "YYYY-MM-DD").endOf("day");
   let workplaceId = req.params.id;
-  let presentEmployees = await AttendanceRecords.findAll({
+  let presentEmployees = await AttendanceRecords.findAndCountAll({
     where: {
       createdAt: {
         [Op.gt]: TODAY_START,
@@ -20,19 +22,41 @@ exports.showPresentEmployees = async (req) => {
       workplaceId: workplaceId,
       checkOutTime: null,
     },
+    limit: parseInt(limit),
+    offset: parseInt(offset),
     include: [{ model: Employee }],
   });
-  return presentEmployees;
+  let pages = Math.ceil(presentEmployees.count / limit);
+
+  let result = {
+    count: presentEmployees.count,
+    pages: pages,
+    presentEmployees: presentEmployees.rows,
+  };
+  return result;
 };
 
 exports.indexEmployees = async (req) => {
   let workplaceId = req.params.id;
-  let employees = await Employee.findAll({
+
+  const limit = req.query.size ? req.query.size : 10;
+  const offset = req.query.page ? req.query.page * limit : 0;
+
+  let employees = await Employee.findAndCountAll({
     where: {
       workplaceId: workplaceId,
     },
+    limit: parseInt(limit),
+    offset: parseInt(offset),
   });
-  return employees;
+  let pages = Math.ceil(employees.count / limit);
+
+  let result = {
+    count: employees.count,
+    pages: pages,
+    employees: employees.rows,
+  };
+  return result;
 };
 
 exports.dailyHistory = async (req) => {
@@ -55,7 +79,7 @@ exports.recentAttendance = async (req) => {
   let employeeId = req.params.id;
   const limit = req.query.size ? req.query.size : 10;
   const offset = req.query.page ? req.query.page * limit : 0;
-  let history = await AttendanceRecords.findAll({
+  let history = await AttendanceRecords.findAndCountAll({
     where: {
       employeeId: employeeId,
     },
@@ -69,7 +93,15 @@ exports.recentAttendance = async (req) => {
     ],
     order: [["createdAt", "DESC"]],
   });
-  return history;
+
+  let pages = Math.ceil(history.count / limit);
+
+  let result = {
+    count: history.count,
+    pages: pages,
+    history: history.rows,
+  };
+  return result;
 };
 
 exports.attendanceByDate = async (req) => {
@@ -81,7 +113,7 @@ exports.attendanceByDate = async (req) => {
   const limit = req.query.size ? req.query.size : 10;
   const offset = req.query.page ? req.query.page * limit : 0;
 
-  let history = await AttendanceRecords.findAll({
+  let history = await AttendanceRecords.findAndCountAll({
     where: {
       employeeId: employeeId,
       createdAt: {
@@ -98,6 +130,13 @@ exports.attendanceByDate = async (req) => {
       },
     ],
   });
-  return history;
+  let pages = Math.ceil(history.count / limit);
+
+  let result = {
+    count: history.count,
+    pages: pages,
+    history: history.rows,
+  };
+  return result;
 };
 //TO DO : show absent people

@@ -7,7 +7,7 @@ exports.indexLeaves = async (req) => {
   try {
     const limit = req.query.size ? req.query.size : 3;
     const offset = req.query.page ? req.query.page * limit : 0;
-    let leaves = await Leave.findAll({
+    let leaves = await Leave.findAndCountAll({
       limit: parseInt(limit),
       offset: parseInt(offset),
       where: {
@@ -25,7 +25,14 @@ exports.indexLeaves = async (req) => {
         },
       ],
     });
-    return leaves;
+    let pages = Math.ceil(leaves.count / limit);
+
+    let result = {
+      count: leaves.count,
+      pages: pages,
+      leaves: leaves.rows,
+    };
+    return result;
   } catch (error) {
     throw new Error(error);
   }

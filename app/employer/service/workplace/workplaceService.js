@@ -40,12 +40,25 @@ exports.addWorkSchedule = async (req) => {
 };
 exports.indexWorkSchedules = async (req) => {
   let workplaceId = req.params.id;
-  let workSchedules = await WorkSchedule.findAll({
+  const limit = req.query.size ? req.query.size : 10;
+  const offset = req.query.page ? req.query.page * limit : 0;
+
+  let workSchedules = await WorkSchedule.findAndCountAll({
     where: {
       workplaceId,
     },
+    limit: parseInt(limit),
+    offset: parseInt(offset),
   });
-  return workSchedules;
+
+  let pages = Math.ceil(workSchedules.count / limit);
+
+  let result = {
+    count: workSchedules.count,
+    pages: pages,
+    workSchedules: workSchedules.rows,
+  };
+  return result;
 };
 
 exports.addEmployeeToWorkplace = async (req) => {
@@ -70,7 +83,7 @@ exports.workplaceRecentAttendance = async (req) => {
   let workplaceId = req.params.id;
   const limit = req.query.size ? req.query.size : 10;
   const offset = req.query.page ? req.query.page * limit : 0;
-  let history = await AttendanceRecords.findAll({
+  let history = await AttendanceRecords.findAndCountAll({
     where: {
       workplaceId: workplaceId,
     },
@@ -84,7 +97,14 @@ exports.workplaceRecentAttendance = async (req) => {
       },
     ],
   });
-  return history;
+  let pages = Math.ceil(history.count / limit);
+
+  let result = {
+    count: history.count,
+    pages: pages,
+    history: history.rows,
+  };
+  return result;
 };
 exports.workplaceAttendanceByDate = async (req) => {
   let workplaceId = req.params.id;
@@ -95,7 +115,7 @@ exports.workplaceAttendanceByDate = async (req) => {
   const limit = req.query.size ? req.query.size : 10;
   const offset = req.query.page ? req.query.page * limit : 0;
 
-  let history = await AttendanceRecords.findAll({
+  let history = await AttendanceRecords.findAndCountAll({
     where: {
       workplaceId: workplaceId,
       createdAt: {
@@ -112,6 +132,13 @@ exports.workplaceAttendanceByDate = async (req) => {
       },
     ],
   });
-  return history;
+  let pages = Math.ceil(history.count / limit);
+
+  let result = {
+    count: history.count,
+    pages: pages,
+    history: history.rows,
+  };
+  return result;
 };
 //TO DO : show absent people

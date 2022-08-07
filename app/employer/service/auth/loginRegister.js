@@ -32,7 +32,7 @@ exports.sendOtp = async (req) => {
       if (!employer) {
         employer = new Employer({
           phone: req.body.input,
-          roleId: 3,
+          roleId: 2,
         });
       }
     }

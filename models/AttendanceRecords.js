@@ -29,8 +29,6 @@ const AttendanceRecords = sequelize.define(
       type: Sequelize.DATE,
       defaultValue: moment(new Date()).format("YYYY-MM-DD HH:mm:ss"),
       get: function () {
-        console.log(new Date());
-
         var isoDateString = new Date(this.getDataValue("createdAt"));
         return new Date(
           isoDateString.getTime() -

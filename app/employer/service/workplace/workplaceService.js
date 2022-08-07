@@ -4,6 +4,7 @@ const Sequelize = require("sequelize");
 const Op = Sequelize.Op;
 const Workplace = require("../../../../models/Workplace");
 const WorkSchedule = require("../../../../models/WorkSchedule");
+const moment = require("moment");
 
 exports.addWorkPlace = async (req) => {
   let name = req.body.name;
@@ -28,14 +29,14 @@ exports.addWorkSchedule = async (req) => {
   let endTime = req.body.endTime;
   let title = req.body.title;
   let workplaceId = req.params.id;
-  let newWorkPlace = new WorkSchedule({
+  let newWchedule = new WorkSchedule({
     title,
     startTime,
     endTime,
     workplaceId,
   });
-  await newWorkPlace.save();
-  return newWorkPlace;
+  await newWchedule.save();
+  return newWchedule;
 };
 exports.indexWorkSchedules = async (req) => {
   let workplaceId = req.params.id;
@@ -65,4 +66,52 @@ exports.addEmployeeToWorkplace = async (req) => {
   return employee;
 };
 
+exports.workplaceRecentAttendance = async (req) => {
+  let workplaceId = req.params.id;
+  const limit = req.query.size ? req.query.size : 10;
+  const offset = req.query.page ? req.query.page * limit : 0;
+  let history = await AttendanceRecords.findAll({
+    where: {
+      workplaceId: workplaceId,
+    },
+    limit: parseInt(limit),
+    offset: parseInt(offset),
+    order: [["createdAt", "DESC"]],
+    include: [
+      {
+        model: Employee,
+        attributes: ["fname", "lname"],
+      },
+    ],
+  });
+  return history;
+};
+exports.workplaceAttendanceByDate = async (req) => {
+  let workplaceId = req.params.id;
+  let startDate = req.body.startDate;
+  let endDate = req.body.endDate;
+  const beginningOfDay = moment(startDate, "YYYY-MM-DD").startOf("day");
+  const endOfDay = moment(endDate, "YYYY-MM-DD").endOf("day");
+  const limit = req.query.size ? req.query.size : 10;
+  const offset = req.query.page ? req.query.page * limit : 0;
+
+  let history = await AttendanceRecords.findAll({
+    where: {
+      workplaceId: workplaceId,
+      createdAt: {
+        [Op.gte]: beginningOfDay,
+        [Op.lte]: endOfDay,
+      },
+    },
+    limit: parseInt(limit),
+    offset: parseInt(offset),
+    include: [
+      {
+        model: Employee,
+        attributes: ["fname", "lname"],
+      },
+    ],
+  });
+  return history;
+};
 //TO DO : show absent people

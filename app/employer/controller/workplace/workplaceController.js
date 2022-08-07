@@ -68,3 +68,29 @@ exports.addemployeeToWorkSchedule = async (req, res, next) => {
     next(e);
   }
 };
+exports.recentAttendance = async (req, res, next) => {
+  try {
+    const recentAttendanceResponse =
+      await workplaceService.workplaceRecentAttendance(req);
+    let response = new Response(200, "success", recentAttendanceResponse);
+    return res.status(200).send(response.handler());
+  } catch (e) {
+    if (e.statusCode) {
+      err.statusCode = 500;
+    }
+    next(e);
+  }
+};
+exports.recentAttendanceByDate = async (req, res, next) => {
+  try {
+    const recentAttendanceResponse =
+      await workplaceService.workplaceAttendanceByDate(req);
+    let response = new Response(200, "success", recentAttendanceResponse);
+    return res.status(200).send(response.handler());
+  } catch (e) {
+    if (e.statusCode) {
+      err.statusCode = 500;
+    }
+    next(e);
+  }
+};

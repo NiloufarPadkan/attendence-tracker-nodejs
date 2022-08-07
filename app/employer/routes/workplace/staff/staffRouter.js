@@ -15,5 +15,25 @@ router.get(
   verifyToken,
   staffController.showPresentEmployees
 );
+router.get(
+  "/employer/employee/:id/dailyHistory",
+  verifyToken,
+  staffController.dailyHistory
+);
+router.get(
+  "/employer/employee/:id/getAttendanceBydate",
+  verifyToken,
+  staffController.historyByDate
+);
+router.get(
+  "/employer/employee/:id/recentAttendance",
+  verifyToken,
+  staffController.recentAttendance
+);
+router.get(
+  "/employer/employee/:id/AttendanceByDate",
+  verifyToken,
+  staffController.recentAttendanceByDate
+);
 
 module.exports = router;

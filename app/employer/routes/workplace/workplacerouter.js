@@ -31,5 +31,15 @@ router.post(
   verifyToken,
   workplaceController.addemployeeToWorkSchedule
 );
+router.get(
+  "/employer/workplace/:id/recentAttendance",
+  verifyToken,
+  workplaceController.recentAttendance
+);
+router.get(
+  "/employer/workplace/:id/AttendanceByDate",
+  verifyToken,
+  workplaceController.recentAttendanceByDate
+);
 
 module.exports = router;

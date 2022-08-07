@@ -1,6 +1,7 @@
 const Employee = require("../../../../models/Employee");
 const persianize = require("persianize");
 const validator = require("validator");
+const WorkSchedule = require("../../../../models/WorkSchedule");
 
 exports.showProfile = async (req) => {
   try {
@@ -8,6 +9,11 @@ exports.showProfile = async (req) => {
       where: {
         id: req.Employee.id,
       },
+      include: [
+        {
+          model: WorkSchedule,
+        },
+      ],
     });
     return me;
   } catch (error) {

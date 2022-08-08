@@ -68,7 +68,7 @@ exports.login_signup = async (req) => {
       });
     }
 
-    if (!employer.otp == req.body.code) {
+    if (employer.otp != req.body.code) {
       return "invalidCode";
     }
 

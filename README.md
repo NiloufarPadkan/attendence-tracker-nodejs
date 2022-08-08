@@ -16,7 +16,7 @@ This REST_API attendance-tracker-nodejs helps you simplify the task of keeping a
 
 - EXPIRE_TIME
 
--SECRET_KEY :32 bit key
+- SECRET_KEY :32 bit key
 
 ## example :
 

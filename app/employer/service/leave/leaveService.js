@@ -12,7 +12,6 @@ exports.indexLeaves = async (req) => {
       offset: parseInt(offset),
       where: {
         workplaceId: req.params.id,
-        read_receipt: false,
       },
       include: [
         {

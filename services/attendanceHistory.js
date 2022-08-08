@@ -44,7 +44,7 @@ exports.dailyHistory = async (employeeId) => {
   var currentDate = moment(new Date()); //current full Date
   var currentTime = moment(currentDate).format("HH:mm:ss"); //current full Date
   var currentDayName = moment(currentDate).format("dddd"); //current day of week
-  const beginningOfDay = moment(currentDate, "YYYY-MM-DD").startOf("day");
+  const beginningOfDay = moment(currentDate, "YYYY-MM-DD HH:mm:ss");
   const endOfDay = moment(currentDate, "YYYY-MM-DD").endOf("day");
   let jalaliDate = jalali_moment(currentDate).locale("fa").format("YYYY/M/D");
   let isHoliday = moment_jalali_holiday(
@@ -100,7 +100,9 @@ exports.dailyHistory = async (employeeId) => {
     },
     order: [["createdAt", "ASC"]],
   });
-
+  if (history.length < 1 && currentTime < employee.workSchedule.startTime) {
+    return record;
+  }
   if (history.length < 1 && !isHoliday) {
     if (confirmedLeave) {
       if (confirmedLeave.type == "daily") return record;

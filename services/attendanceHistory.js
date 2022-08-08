@@ -102,8 +102,40 @@ exports.dailyHistory = async (employeeId) => {
   });
 
   if (history.length < 1 && !isHoliday) {
-    if (confirmedLeave && confirmedLeave.type == "daily") {
-      return record;
+    if (confirmedLeave) {
+      if (confirmedLeave.type == "daily") return record;
+      else if (confirmedLeave && confirmedLeave.type == "hourly") {
+        let startLeaveTime = moment(
+          new Date(confirmedLeave.startDateTime)
+        ).format("HH:mm:ss");
+        let endLeaveTime = moment(new Date(confirmedLeave.endDateTime)).format(
+          "HH:mm:ss"
+        );
+        if (currentTime > startLeaveTime) {
+          //mohasebe inke ta alan cheghad bayad morkhassi mimoond
+          if (currentTime > endLeaveTime) {
+            leaveDuration += moment
+              .duration(endLeaveTime)
+              .subtract(moment.duration(startLeaveTime));
+          } else if (currentTime < endLeaveTime) {
+            leaveDuration += moment
+              .duration(currentDate.format("HH:mm:ss"))
+              .subtract(moment.duration(startLeaveTime));
+          }
+        }
+        if (currentTime < employee.workSchedule.endTime) {
+          absenseDuration += moment
+            .duration(currentDate.format("HH:mm:ss"))
+            .subtract(moment.duration(employee.workSchedule.startTime));
+        } else {
+          absenseDuration += moment
+            .duration(moment.duration(employee.workSchedule.endTime))
+            .subtract(moment.duration(employee.workSchedule.startTime));
+        }
+        absenseDuration -= moment.duration(leaveDuration);
+        record.absence = moment.utc(absenseDuration).format("HH:mm:ss");
+        return record;
+      }
     } else {
       if (currentTime < employee.workSchedule.endTime) {
         absenseDuration += moment
@@ -231,13 +263,16 @@ exports.getHistoryByDate = async (employeeId, startDate, endDate) => {
   if (!employee) return "employeeNotFound";
   let workDays = employee.workdays;
 
-  const dateMove = new Date(startDate);
-  let strDate = startDate;
-
-  while (strDate < endDate) {
-    strDate = dateMove.toISOString().slice(0, 10);
-    listDate.push(strDate);
-    dateMove.setDate(dateMove.getDate() + 1);
+  if (startDate == endDate) {
+    listDate.push(startDate);
+  } else {
+    const dateMove = new Date(startDate);
+    let strDate = startDate;
+    while (strDate < endDate) {
+      strDate = dateMove.toISOString().slice(0, 10);
+      listDate.push(strDate);
+      dateMove.setDate(dateMove.getDate() + 1);
+    }
   }
   for (i = 0; i < listDate.length; i++) {
     var date = listDate[i]; //current full Date
@@ -272,7 +307,48 @@ exports.getHistoryByDate = async (employeeId, startDate, endDate) => {
       raw: true,
     });
     if (history.length < 1 && !isHoliday) {
-      if (confirmedLeave && confirmedLeave.type == "daily") {
+      if (confirmedLeave) {
+        if (confirmedLeave.type == "daily") continue;
+        else if (confirmedLeave.type == "hourly") {
+          let startLeaveTime = moment(
+            new Date(confirmedLeave.startDateTime)
+          ).format("HH:mm:ss");
+
+          let endLeaveTime = moment(
+            new Date(confirmedLeave.endDateTime)
+          ).format("HH:mm:ss");
+
+          if (
+            currentTime > startLeaveTime &&
+            currentTime < endLeaveTime &&
+            moment(currentDate).format("YYYY-MM-DD") === listDate[i]
+          ) {
+            //mohasebe inke ta alan cheghad bayad morkhassi mimoond
+            leaveDuration += moment
+              .duration(currentDate.format("HH:mm:ss"))
+              .subtract(moment.duration(startLeaveTime));
+          } else {
+            leaveDuration += moment
+              .duration(endLeaveTime)
+              .subtract(moment.duration(startLeaveTime));
+          }
+        }
+
+        if (
+          currentTime < employee.workSchedule.endTime &&
+          moment(currentDate).format("YYYY-MM-DD") === listDate[i]
+        ) {
+          absenseDuration += moment(currentDate, "HH:mm:ss").diff(
+            moment(employee.workSchedule.startTime, "HH:mm:ss")
+          );
+        } else {
+          absenseDuration += moment(
+            employee.workSchedule.endTime,
+            "HH:mm:ss"
+          ).diff(moment(employee.workSchedule.startTime, "HH:mm:ss"));
+        }
+
+        absenseDuration -= moment.duration(leaveDuration);
         continue;
       } else {
         if (
@@ -288,6 +364,7 @@ exports.getHistoryByDate = async (employeeId, startDate, endDate) => {
             "HH:mm:ss"
           ).diff(moment(employee.workSchedule.startTime, "HH:mm:ss"));
         }
+
         continue;
       }
     } else {

@@ -18,11 +18,7 @@ const encrypt = (text) => {
 };
 
 const decrypt = (hash) => {
-  //   hash = {
-  //     content: hash.content,
-  //     iv: hash.iv,
-  //   };
-
+  
   const secretKey = process.env.SECRET_KEY;
   const decipher = crypto.createDecipheriv(
     algorithm,

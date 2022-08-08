@@ -13,6 +13,7 @@ const EmployerAuthRouter = require("./app/employer/routes/auth/loginRegisterRout
 const EmployerStaffRouter = require("./app/employer/routes/workplace/staff/staffRouter");
 const EmployerWorkPlaveRouter = require("./app/employer/routes/workplace/workplacerouter");
 const EmployerLeaveRouter = require("./app/employer/routes/leave/leaveRouter");
+const EmployerProfileRouter = require("./app/employer/routes/employer/profileRouter");
 const Employer = require("./models/Employer");
 const Workplace = require("./models/Workplace");
 const WorksSchedule = require("./models/WorkSchedule");
@@ -51,6 +52,7 @@ app.use("/api", EmployerLeaveRouter);
 app.use("/api", EmployerStaffRouter);
 app.use("/api", EmployerWorkPlaveRouter);
 app.use("/api", EmployerWorkPlaveRouter);
+app.use("/api", EmployerProfileRouter);
 
 app.get("/api/employees", async (req, res) => {
   let employee = await Employee.findAll({});

@@ -1,20 +1,14 @@
-const Employee = require("../../../../models/Employee");
+const Employer = require("../../../../models/Employer");
 const persianize = require("persianize");
 const validator = require("validator");
-const WorkSchedule = require("../../../../models/WorkSchedule");
 
 exports.showProfile = async (req) => {
   try {
-    let me = await Employee.findOne({
+    let me = await Employer.findOne({
       where: {
-        id: req.Employee.id,
+        id: req.Employer.id,
       },
-      include: [
-        {
-          model: WorkSchedule,
-          attributes: { exclude: ["createdAt", "updatedAt"] },
-        },
-      ],
+
       attributes: { exclude: ["createdAt", "updatedAt", "otp"] },
     });
     return me;
@@ -24,20 +18,20 @@ exports.showProfile = async (req) => {
 };
 exports.editProfile = async (req) => {
   try {
-    let employee = await Employee.findOne({
+    let employer = await Employer.findOne({
       where: {
-        id: req.Employee.id,
+        id: req.Employer.id,
       },
     });
 
-    if (req.body.fname) employee.fname = req.body.fname;
+    if (req.body.fname) employer.fname = req.body.fname;
 
-    if (req.body.lname) employee.lname = req.body.lname;
+    if (req.body.lname) employer.lname = req.body.lname;
 
     if (req.body.phone) {
       if (persianize.validator().mobile(req.body.input)) return "invalidPhone";
 
-      let duplicatePhone = await Employee.findOne({
+      let duplicatePhone = await Employer.findOne({
         where: {
           phone: req.body.phone,
         },
@@ -45,22 +39,22 @@ exports.editProfile = async (req) => {
       if (duplicatePhone && duplicatePhone.id !== req.Employee.id)
         return "duplicatePhone";
     }
-    employee.phone = req.body.phone;
+    employer.phone = req.body.phone;
 
     if (req.body.email) {
       if (!validator.isEmail(req.body.email)) return "invalidEmail";
-      let duplicateEmail = await Employee.findOne({
+      let duplicateEmail = await Employer.findOne({
         where: {
           email: req.body.email,
         },
       });
-      if (duplicateEmail && duplicateEmail.id !== req.Employee.id)
+      if (duplicateEmail && duplicateEmail.id !== req.Employer.id)
         return "duplicateEmail";
-      employee.email = req.body.email;
+      employer.email = req.body.email;
     }
 
-    await employee.save();
-    return employee;
+    await employer.save();
+    return employer;
   } catch (error) {
     throw new Error(error);
   }

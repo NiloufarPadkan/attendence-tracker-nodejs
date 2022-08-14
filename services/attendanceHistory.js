@@ -8,231 +8,51 @@ const Op = Sequelize.Op;
 var jalali_moment = require("jalali-moment");
 var moment_jalali_holiday = require("moment-jalaali-holiday");
 
+function dhm(dur) {
+  var dur = moment.duration(dur);
+  var hours = Math.floor(dur.asHours());
+  var mins = Math.floor(dur.asMinutes()) - hours * 60;
+  var sec = Math.floor(dur.asSeconds()) - hours * 60 * 60 - mins * 60;
+
+  var result =
+    (hours > 9 ? hours : "0" + hours) +
+    ":" +
+    (mins > 9 ? mins : "0" + mins) +
+    ":" +
+    (sec > 9 ? sec : "0" + sec);
+
+  return result;
+}
+
 function calculatePresense(history, currentDate) {
   let presenceDuration = 0;
   let scheduledPresenseduration = 0;
 
   history.forEach((element) => {
     if (element.checkInTime < element.endTime) {
-      if (!element.checkOutTime) {
-        scheduledPresenseduration += moment
-          .duration(currentDate.format("HH:mm:ss"))
-          .subtract(moment.duration(element.checkInTime));
-      } else if (element.checkOutTime > element.endTime) {
+      if (element.checkOutTime > element.endTime) {
         scheduledPresenseduration += moment
           .duration(element.endTime)
           .subtract(moment.duration(element.checkInTime));
-      } else {
+      } else if (element.checkInTime > element.startTime) {
         scheduledPresenseduration += moment
           .duration(element.checkOutTime)
           .subtract(moment.duration(element.checkInTime));
       }
     }
-    if (!element.checkOutTime) {
-      presenceDuration += moment
-        .duration(currentDate.format("HH:mm:ss"))
-        .subtract(moment.duration(element.checkInTime));
-    } else {
-      presenceDuration += moment
-        .duration(element.checkOutTime)
-        .subtract(moment.duration(element.checkInTime));
-    }
+    presenceDuration += moment
+      .duration(element.checkOutTime)
+      .subtract(moment.duration(element.checkInTime));
   });
   return { presenceDuration, scheduledPresenseduration };
 }
 exports.dailyHistory = async (employeeId) => {
-  var currentDate = moment(new Date()); //current full Date
-  var currentTime = moment(currentDate).format("HH:mm:ss"); //current full Date
-  var currentDayName = moment(currentDate).format("dddd"); //current day of week
-  const beginningOfDay = moment(currentDate, "YYYY-MM-DD HH:mm:ss");
-  const endOfDay = moment(currentDate, "YYYY-MM-DD").endOf("day");
-  let jalaliDate = jalali_moment(currentDate).locale("fa").format("YYYY/M/D");
-  let isHoliday = moment_jalali_holiday(
-    jalaliDate,
-    "jYYYY/jMM/jDD"
-  ).isHoliday();
-  let workTime;
-
-  let record = {
-    presence: "00:00:00",
-    absence: "00:00:00",
-    delay: "00:00:00",
-    overTime: "00:00:00",
-  };
-
-  let presenceDuration = 0;
-  let overTimeDuration = 0;
-  let scheduledPresenseduration = 0;
-  let absenseDuration = 0;
-  let leaveDuration = 0;
-
-  let employee = await Employee.findOne({
-    where: {
-      id: employeeId,
-    },
-    include: [
-      {
-        model: WorkSchedule,
-      },
-    ],
-  });
-  if (!employee) return "employeeNotFound";
-  let workDays = employee.workdays;
-
-  let confirmedLeave = await Leave.findOne({
-    where: {
-      status: 1,
-      employeeId: employeeId,
-      startDateTime: {
-        [Op.gte]: beginningOfDay.format("YYYY-MM-DD HH:mm:ss").toString(),
-        [Op.lte]: endOfDay.format("YYYY-MM-DD HH:mm:ss").toString(),
-      },
-    },
-    raw: true,
-  });
-  let history = await AttendanceRecords.findAll({
-    where: {
-      employeeId: employeeId,
-      createdAt: {
-        [Op.gte]: beginningOfDay,
-        [Op.lte]: endOfDay,
-      },
-    },
-    order: [["createdAt", "ASC"]],
-  });
-  if (history.length < 1 && currentTime < employee.workSchedule.startTime) {
-    return record;
-  }
-  if (history.length < 1 && !isHoliday) {
-    if (confirmedLeave) {
-      if (confirmedLeave.type == "daily") return record;
-      else if (confirmedLeave && confirmedLeave.type == "hourly") {
-        let startLeaveTime = moment(
-          new Date(confirmedLeave.startDateTime)
-        ).format("HH:mm:ss");
-        let endLeaveTime = moment(new Date(confirmedLeave.endDateTime)).format(
-          "HH:mm:ss"
-        );
-        if (currentTime > startLeaveTime) {
-          //mohasebe inke ta alan cheghad bayad morkhassi mimoond
-          if (currentTime > endLeaveTime) {
-            leaveDuration += moment
-              .duration(endLeaveTime)
-              .subtract(moment.duration(startLeaveTime));
-          } else if (currentTime < endLeaveTime) {
-            leaveDuration += moment
-              .duration(currentDate.format("HH:mm:ss"))
-              .subtract(moment.duration(startLeaveTime));
-          }
-        }
-        if (currentTime < employee.workSchedule.endTime) {
-          absenseDuration += moment
-            .duration(currentDate.format("HH:mm:ss"))
-            .subtract(moment.duration(employee.workSchedule.startTime));
-        } else {
-          absenseDuration += moment
-            .duration(moment.duration(employee.workSchedule.endTime))
-            .subtract(moment.duration(employee.workSchedule.startTime));
-        }
-        absenseDuration -= moment.duration(leaveDuration);
-        record.absence = moment.utc(absenseDuration).format("HH:mm:ss");
-        return record;
-      }
-    } else {
-      if (currentTime < employee.workSchedule.endTime) {
-        absenseDuration += moment
-          .duration(currentDate.format("HH:mm:ss"))
-          .subtract(moment.duration(employee.workSchedule.startTime));
-      } else {
-        absenseDuration += moment
-          .duration(moment.duration(employee.workSchedule.endTime))
-          .subtract(moment.duration(employee.workSchedule.startTime));
-      }
-      record.absence = moment.utc(absenseDuration).format("HH:mm:ss");
-      return record;
-    }
-  }
-  // const request = require("request");
-
-  if (!workDays.includes(currentDayName) || isHoliday) {
-    history.forEach((element) => {
-      if (!element.checkOutTime) {
-        overTimeDuration += moment
-          .duration(currentDate.format("HH:mm:ss"))
-          .subtract(moment.duration(element.checkInTime));
-      } else {
-        overTimeDuration += moment
-          .duration(element.checkOutTime)
-          .subtract(moment.duration(element.checkInTime));
-      }
-    });
-    record.overTime = moment.utc(overTimeDuration).format("HH:mm:ss");
-    return record;
-  }
-
-  if (confirmedLeave && confirmedLeave.type == "hourly") {
-    let startLeaveTime = moment(new Date(confirmedLeave.startDateTime)).format(
-      "HH:mm:ss"
-    );
-    let endLeaveTime = moment(new Date(confirmedLeave.endDateTime)).format(
-      "HH:mm:ss"
-    );
-    if (currentTime > startLeaveTime) {
-      //mohasebe inke ta alan cheghad bayad morkhassi mimoond
-      if (currentTime > endLeaveTime) {
-        leaveDuration += moment
-          .duration(endLeaveTime)
-          .subtract(moment.duration(startLeaveTime));
-      } else if (currentTime < endLeaveTime) {
-        leaveDuration += moment
-          .duration(currentDate.format("HH:mm:ss"))
-          .subtract(moment.duration(startLeaveTime));
-      }
-    }
-  }
-  if (currentTime > history[0].endTime)
-    workTime = moment(history[0].endTime, "HH:mm:ss").diff(
-      moment(history[0].startTime, "HH:mm:ss")
-    );
-  else {
-    workTime = moment(currentTime, "HH:mm:ss").diff(
-      moment(history[0].startTime, "HH:mm:ss")
-    );
-  }
-  workTime = moment(workTime).diff(moment(leaveDuration));
-  if (workTime == 0) {
-    return record;
-  }
-
-  let delay = moment(history[0].checkInTime, "HH:mm:ss").diff(
-    moment(history[0].startTime, "HH:mm:ss")
+  var currentDate = moment(currentDate).format("YYYY-MM-DD"); //current date
+  let record = await this.getHistoryByDate(
+    employeeId,
+    currentDate,
+    currentDate
   );
-  if (confirmedLeave && confirmedLeave.type == "hourly") {
-    if (
-      history[0].checkInTime >
-      moment(new Date(confirmedLeave.endDateTime)).format("HH:mm:ss")
-    ) {
-      delay = moment(history[0].checkInTime, "HH:mm:ss").diff(
-        moment(new Date(confirmedLeave.endDateTime), "HH:mm:ss")
-      );
-    }
-  }
-  record.delay = moment.utc(delay).format("HH:mm:ss");
-  let presenseCalculation = calculatePresense(history, currentDate);
-
-  // presense calcuation subtract from leave time
-  absenseDuration = moment(workTime).diff(
-    moment(presenseCalculation.scheduledPresenseduration)
-  );
-  overTimeDuration = moment(presenseCalculation.presenceDuration).diff(
-    moment(presenseCalculation.scheduledPresenseduration)
-  );
-  record.presence = moment
-    .utc(presenseCalculation.presenceDuration)
-    .format("HH:mm:ss");
-  record.absence = moment.utc(absenseDuration).format("HH:mm:ss");
-  record.overTime = moment.utc(overTimeDuration).format("HH:mm:ss");
-
   return record;
 };
 exports.getHistoryByDate = async (employeeId, startDate, endDate) => {
@@ -277,15 +97,20 @@ exports.getHistoryByDate = async (employeeId, startDate, endDate) => {
     }
   }
   for (i = 0; i < listDate.length; i++) {
+    //
     var date = listDate[i]; //current full Date
     var weekDayName = moment(date).format("dddd"); //current day of week
     const beginningOfDay = moment(date, "YYYY-MM-DD").startOf("day");
     const endOfDay = moment(date, "YYYY-MM-DD").endOf("day");
     let jalaliDate = jalali_moment(date).locale("fa").format("YYYY/M/D");
+
     let isHoliday = moment_jalali_holiday(
       jalaliDate,
       "jYYYY/jMM/jDD"
     ).isHoliday();
+
+    //records of ths date
+
     let history = await AttendanceRecords.findAll({
       where: {
         employeeId: employeeId,
@@ -293,10 +118,12 @@ exports.getHistoryByDate = async (employeeId, startDate, endDate) => {
           [Op.gte]: beginningOfDay,
           [Op.lte]: endOfDay,
         },
+        checkOutTime: { [Op.ne]: null },
       },
       order: [["createdAt", "ASC"]],
     });
 
+    // find leave
     let confirmedLeave = await Leave.findOne({
       where: {
         status: 1,
@@ -308,34 +135,41 @@ exports.getHistoryByDate = async (employeeId, startDate, endDate) => {
       },
       raw: true,
     });
-    if (history.length < 1 && !isHoliday) {
-      if (confirmedLeave) {
-        if (confirmedLeave.type == "daily") continue;
-        else if (confirmedLeave.type == "hourly") {
-          let startLeaveTime = moment(
-            new Date(confirmedLeave.startDateTime)
-          ).format("HH:mm:ss");
+    if (confirmedLeave) {
+      let startLeaveTime = moment(
+        new Date(confirmedLeave.startDateTime)
+      ).format("HH:mm:ss");
 
-          let endLeaveTime = moment(
-            new Date(confirmedLeave.endDateTime)
-          ).format("HH:mm:ss");
+      let endLeaveTime = moment(new Date(confirmedLeave.endDateTime)).format(
+        "HH:mm:ss"
+      );
 
-          if (
-            currentTime > startLeaveTime &&
-            currentTime < endLeaveTime &&
-            moment(currentDate).format("YYYY-MM-DD") === listDate[i]
-          ) {
-            //mohasebe inke ta alan cheghad bayad morkhassi mimoond
-            leaveDuration += moment
-              .duration(currentDate.format("HH:mm:ss"))
-              .subtract(moment.duration(startLeaveTime));
-          } else {
-            leaveDuration += moment
-              .duration(endLeaveTime)
-              .subtract(moment.duration(startLeaveTime));
-          }
+      if (confirmedLeave.type == "daily") {
+        // leaveDuration += moment
+        //   .duration(endLeaveTime)
+        //   .subtract(moment.duration(startLeaveTime));
+        continue;
+      } else if (confirmedLeave && confirmedLeave.type == "hourly") {
+        if (
+          currentTime > startLeaveTime &&
+          currentTime < endLeaveTime &&
+          moment(currentDate).format("YYYY-MM-DD") === listDate[i]
+        ) {
+          //mohasebe inke ta alan cheghad bayad morkhassi mimoond
+          leaveDuration += moment
+            .duration(currentDate.format("HH:mm:ss"))
+            .subtract(moment.duration(startLeaveTime));
+        } else {
+          leaveDuration += moment
+            .duration(endLeaveTime)
+            .subtract(moment.duration(startLeaveTime));
         }
+      }
+    }
 
+    //if no records found
+    if (history.length < 1 && !isHoliday && workDays.includes(weekDayName)) {
+      if (confirmedLeave) {
         if (
           currentTime < employee.workSchedule.endTime &&
           moment(currentDate).format("YYYY-MM-DD") === listDate[i]
@@ -370,29 +204,7 @@ exports.getHistoryByDate = async (employeeId, startDate, endDate) => {
         continue;
       }
     } else {
-      if (confirmedLeave && confirmedLeave.type == "hourly") {
-        let startLeaveTime = moment(
-          new Date(confirmedLeave.startDateTime)
-        ).format("HH:mm:ss");
-        let endLeaveTime = moment(new Date(confirmedLeave.endDateTime)).format(
-          "HH:mm:ss"
-        );
-        if (currentTime > startLeaveTime) {
-          //mohasebe inke ta alan cheghad bayad morkhassi mimoond
-          if (
-            currentTime < endLeaveTime &&
-            moment(currentDate).format("YYYY-MM-DD") === listDate[i]
-          ) {
-            leaveDuration += moment
-              .duration(currentDate.format("HH:mm:ss"))
-              .subtract(moment.duration(startLeaveTime));
-          } else {
-            leaveDuration += moment
-              .duration(endLeaveTime)
-              .subtract(moment.duration(startLeaveTime));
-          }
-        }
-      }
+      // calculate over time
       if (!workDays.includes(weekDayName) || isHoliday) {
         history.forEach((element) => {
           if (!element.checkOutTime) {
@@ -407,13 +219,17 @@ exports.getHistoryByDate = async (employeeId, startDate, endDate) => {
         });
         continue;
       }
-      let workTime;
+      let workTime = 0;
+
       if (moment(currentDate).format("YYYY-MM-DD") === listDate[i]) {
         if (currentTime > history[0].endTime)
           workTime = moment(history[0].endTime, "HH:mm:ss").diff(
             moment(history[0].startTime, "HH:mm:ss")
           );
-        else {
+        else if (
+          currentTime > history[0].startTime &&
+          currentTime < history[0].endTime
+        ) {
           workTime = moment(currentTime, "HH:mm:ss").diff(
             moment(history[0].startTime, "HH:mm:ss")
           );
@@ -424,36 +240,34 @@ exports.getHistoryByDate = async (employeeId, startDate, endDate) => {
         );
       workTime = moment(workTime).diff(moment(leaveDuration));
 
-      if (workTime == 0) {
-        continue;
-      }
-      if (
-        confirmedLeave &&
-        confirmedLeave.type == "hourly" &&
-        history[0].checkInTime >
-          moment(new Date(confirmedLeave.endDateTime)).format("HH:mm:ss")
-      ) {
-        {
-          delayDuration += moment
-            .duration(history[0].checkInTime)
-            .subtract(
-              moment(new Date(confirmedLeave.endDateTime)).format("HH:mm:ss")
-            );
-        }
-      } else {
-        delayDuration += moment
-          .duration(history[0].checkInTime)
-          .subtract(moment.duration(history[0].startTime));
-      }
+      // if (workTime == 0) {
+      //   continue;
+      // }
 
       let presenseCalculation = calculatePresense(history, currentDate);
       presenceDuration += presenseCalculation.presenceDuration;
       scheduledPresenseduration +=
         presenseCalculation.scheduledPresenseduration;
-
       absenseDuration += moment(workTime).diff(
         moment(presenseCalculation.scheduledPresenseduration)
       );
+      let firstCheckIn = history.find((el) => el.checkInTime >= el.startTime);
+      if (
+        confirmedLeave &&
+        confirmedLeave.type == "hourly" &&
+        firstCheckIn.checkInTime >
+          moment(new Date(confirmedLeave.endDateTime)).format("HH:mm:ss")
+      ) {
+        delayDuration += moment
+          .duration(firstCheckIn.checkInTime)
+          .subtract(
+            moment(new Date(confirmedLeave.endDateTime)).format("HH:mm:ss")
+          );
+      } else if (firstCheckIn.checkInTime >= firstCheckIn.startTime) {
+        delayDuration += moment
+          .duration(firstCheckIn.checkInTime)
+          .subtract(moment.duration(firstCheckIn.startTime));
+      }
     }
   }
   overTimeDuration += moment(presenceDuration).diff(
@@ -466,25 +280,3 @@ exports.getHistoryByDate = async (employeeId, startDate, endDate) => {
 
   return record;
 };
-function dhm(dur) {
-  // const days = Math.floor(ms / (24 * 60 * 60 * 1000));
-  // const daysms = ms % (24 * 60 * 60 * 1000);
-  // const hours = Math.floor(daysms / (60 * 60 * 1000));
-  // const hoursms = ms % (60 * 60 * 1000);
-  // const minutes = Math.floor(hoursms / (60 * 1000));
-  // const minutesms = ms % (60 * 1000);
-  // const sec = Math.floor(minutesms / 1000);
-  // return days + ":" + hours + ":" + minutes + ":" + sec;
-  var dur = moment.duration(dur);
-  var hours = Math.floor(dur.asHours());
-  var mins = Math.floor(dur.asMinutes()) - hours * 60;
-  var sec = Math.floor(dur.asSeconds()) - hours * 60 * 60 - mins * 60;
-
-  var result =
-    (hours > 9 ? hours : "0" + hours) +
-    ":" +
-    (mins > 9 ? mins : "0" + mins) +
-    ":" +
-    (sec > 9 ? sec : "0" + sec);
-  return result;
-}
